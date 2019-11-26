@@ -77,11 +77,11 @@ class FractalViewer(object):
 
         # save button
         self.b_save = tk.Button(self.options_frame, text='Save image', command=self.save_img, width=10)
-        self.b_save.grid(row=8, column=0)
+        self.b_save.grid(row=8, column=0, pady=10)
 
         # load position from image
         self.b_load = tk.Button(self.options_frame, text='Load', command=self.load_img, width=10)
-        self.b_load.grid(row=8, column=1)
+        self.b_load.grid(row=8, column=1, pady=10)
 
         # initialize image
         self.fractal_type = self.c_frac_type.get()
