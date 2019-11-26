@@ -11,7 +11,7 @@ Current capabilities include:
 - saving images
 - loading position/colormap from previously saved images
 
-As navigation occurs, the fractal image is dynamically recomputed using the pyCUDA architecture.
+As navigation occurs, the fractal image is dynamically recomputed using the CUDA architecture.
 
 Future improvements include:
 
@@ -22,4 +22,4 @@ Future improvements include:
 ## Requirements
 
 - Python 3
-- an Nvidia GPU with pyCUDA installed (`conda install cudatoolkit=9.0`)
+- an Nvidia GPU with CUDA Python installed (`conda install cudatoolkit=9.0`)
