@@ -34,14 +34,14 @@ class FractalViewer(object):
         self.control_frame.pack()
         # select fractal type
         self.l_frac_type = tk.Label(self.control_frame, text='Fractal type:')
-        self.l_frac_type.grid(sticky=tk.W, row=0, column=0)
+        self.l_frac_type.grid(sticky=tk.W, row=1, column=0)
         self.c_frac_type = ttk.Combobox(self.control_frame, values=self.frac_types, state='readonly')
         self.c_frac_type.current(0)
-        self.c_frac_type.grid(sticky=tk.W, row=0, column=1)
+        self.c_frac_type.grid(sticky=tk.W, row=1, column=1)
 
         # select colormap
         self.l_cmap = tk.Label(self.control_frame, text='color map:')
-        self.l_frac_type.grid(sticky=tk.W, row=2, column=0)
+        self.l_cmap.grid(sticky=tk.W, row=2, column=0)
         self.c_cmap = ttk.Combobox(self.control_frame, values=self.cmaps, state='readonly')
         self.c_cmap.current(self.cmaps.index('seismic_r'))
         self.c_cmap.grid(sticky=tk.W, row=2, column=1)
