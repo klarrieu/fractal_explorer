@@ -21,5 +21,11 @@ Future improvements include:
 
 ## Requirements
 
-- Python 3
-- an Nvidia GPU with CUDA Python installed (`conda install cudatoolkit=9.0`)
+- Python 3.x
+- an Nvidia GPU with CUDA Python installed. 
+
+## Installation and Usage
+1. Ensure your computer is equipped with an Nvidia GPU.
+2. Install [CUDA](https://developer.nvidia.com/cuda-toolkit).
+3. Install [Python CUDA packages](https://developer.nvidia.com/how-to-cuda-python) (in a conda environment: `conda install numba cudatoolkit=9.0 pyculib`).
+4. Run the `fractal_explorer.py` script in this repository and have fun!
