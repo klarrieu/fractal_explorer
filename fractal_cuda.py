@@ -45,26 +45,32 @@ def mandel_kernel(min_x, max_x, min_y, max_y, image, iters):
             image[y, x] = mandel_gpu(real, imag, iters)
 
 
-def generate_img(centerX=-0.5, centerY=0, zoom=1, res=1080, iters=20, aspect=3 / 2):
+def generate_img(centerX=-0.7, centerY=0, zoom=1, res=1080, iters=20, aspect=3 / 2):
     # generate fractal image using GPU
 
     # define input image array
     x_res = res
     y_res = int(res * aspect)
     gimage = np.zeros((x_res, y_res), dtype=np.uint64)
+
     # setup GPU array dims
     blockdim = (32, 8)
     griddim = (32, 16)
 
+    # send gimage to GPU
     d_image = cuda.to_device(gimage)
 
-    dx = 1 / 2 * 3 / (zoom ** 2)
-    dy = 1 / 2 * 2 / (zoom ** 2)
+    # scaling factor (0.8 for every integer increase in zoom)
+    z_factor = (0.8 ** (zoom - 1))
+    # half window sizes
+    dx = 1 / 2 * 3 * z_factor
+    dy = 1 / 2 * 2 * z_factor
 
+    # compute on GPU
     mandel_kernel[griddim, blockdim](centerX - dx, centerX + dx, centerY - dy, centerY + dy, d_image, iters)
+    # return to CPU
     d_image.to_host()
 
-    # image = imshow(gimage, cmap='gist_ncar')
     return gimage
 
 

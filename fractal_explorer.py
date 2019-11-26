@@ -2,13 +2,13 @@ import os
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.filedialog import askopenfilename
-import fractal_cuda as fcuda
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import fractal_cuda as fcuda
 
 
-class FractalViewer(object):
+class FractalExplorer(object):
     def __init__(self):
 
         self.root = tk.Tk()
@@ -43,7 +43,7 @@ class FractalViewer(object):
         self.l_cmap = tk.Label(self.options_frame, text='color map:')
         self.l_cmap.grid(sticky=tk.E, row=2, column=0)
         self.c_cmap = ttk.Combobox(self.options_frame, values=self.cmaps, state='readonly')
-        self.c_cmap.current(self.cmaps.index('seismic_r'))
+        self.c_cmap.current(self.cmaps.index('cubehelix'))
         self.c_cmap.grid(sticky=tk.W, row=2, column=1)
         self.c_cmap.bind('<<ComboboxSelected>>', self.update_cmap)
 
@@ -87,7 +87,8 @@ class FractalViewer(object):
         self.fractal_type = self.c_frac_type.get()
         self.cmap = self.c_cmap.get()
         self.zoom = float(self.s_zoom.get())
-        self.centerX = -0.5
+        self.update_iters()
+        self.centerX = -0.7
         self.centerY = 0
         self.update_image()
 
@@ -117,23 +118,28 @@ class FractalViewer(object):
     def update_zoom(self):
         # update zoom level
         self.zoom = float(self.s_zoom.get())
+        self.update_iters()
         self.update_image()
+
+    def update_iters(self):
+        self.z_factor = (0.8 ** (self.zoom - 1))
+        self.iters = int(2 / self.z_factor)
 
     def update_left(self):
         # update when left button pressed
-        self.centerX -= 0.1 / (self.zoom ** 2)
+        self.centerX -= 0.1 * self.z_factor
         self.update_image()
 
     def update_right(self):
-        self.centerX += 0.1 / (self.zoom ** 2)
+        self.centerX += 0.1 * self.z_factor
         self.update_image()
 
     def update_up(self):
-        self.centerY -= 0.1 / (self.zoom ** 2)
+        self.centerY -= 0.1 * self.z_factor
         self.update_image()
 
     def update_down(self):
-        self.centerY += 0.1 / (self.zoom ** 2)
+        self.centerY += 0.1 * self.z_factor
         self.update_image()
 
     def save_img(self):
@@ -175,6 +181,5 @@ class FractalViewer(object):
         self.update_image()
 
 
-
 if __name__ == '__main__':
-    FractalViewer()
+    FractalExplorer()
