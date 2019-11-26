@@ -32,4 +32,4 @@ Future improvements include:
 
 Images created using the `Save image` button are saved to an `\images\` directory in this repository. Upon saving, the output filename is also printed to the console. 
 
-Loading a previously saved image with the `Load` button will reset the window location and colormap according to the loaded image.
+Loading a previously saved image with the `Load` button will reset the window location, zoom, and colormap according to the loaded image.
