@@ -146,7 +146,7 @@ class FractalExplorer(object):
         img_name = '%s_%s_%s_%s_%s.png' % (self.c_frac_type.get(),
                                            str(self.centerX).replace('.', 'pt'),
                                            str(self.centerY).replace('.', 'pt'),
-                                           str(self.zoom),
+                                           str(self.zoom).replace('.', 'pt'),
                                            self.cmap)
         img_path = os.path.join(self.out_dir, img_name)
 
@@ -176,6 +176,8 @@ class FractalExplorer(object):
         self.centerY = float(vals[2])
         self.zoom = float(vals[3])
         self.cmap = vals[4]
+        if len(vals) > 5:
+            self.cmap = self.cmap + '_r'
 
         self.c_frac_type.set(self.fractal_type)
         self.zoom_var.set(self.zoom)
