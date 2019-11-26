@@ -29,3 +29,5 @@ Future improvements include:
 2. Install [CUDA](https://developer.nvidia.com/cuda-toolkit).
 3. Install [Python CUDA packages](https://developer.nvidia.com/how-to-cuda-python) (in a conda environment: `conda install numba cudatoolkit=9.0 pyculib`).
 4. Run the `fractal_explorer.py` script in this repository and have fun!
+
+Images created using the `Save Image` button are saved to an \images\ directory in this repository. Upon saving, the output filename is also printed to the console.
