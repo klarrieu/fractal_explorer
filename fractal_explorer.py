@@ -12,7 +12,7 @@ class FractalViewer(object):
     def __init__(self):
 
         self.root = tk.Tk()
-        self.root.title('Fractal Viewer')
+        self.root.title('Fractal Explorer')
 
         self.cwd = os.path.dirname(__file__)
         self.out_dir = os.path.join(self.cwd, 'images\\')
