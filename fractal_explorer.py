@@ -30,54 +30,57 @@ class FractalViewer(object):
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
 
-        self.control_frame = tk.Frame(self.root)
-        self.control_frame.pack()
+        self.options_frame = tk.Frame(self.root)
+        self.options_frame.pack(side=tk.LEFT, padx=20)
         # select fractal type
-        self.l_frac_type = tk.Label(self.control_frame, text='Fractal type:')
-        self.l_frac_type.grid(sticky=tk.W, row=1, column=0)
-        self.c_frac_type = ttk.Combobox(self.control_frame, values=self.frac_types, state='readonly')
+        self.l_frac_type = tk.Label(self.options_frame, text='fractal type:')
+        self.l_frac_type.grid(sticky=tk.E, row=1, column=0)
+        self.c_frac_type = ttk.Combobox(self.options_frame, values=self.frac_types, state='readonly')
         self.c_frac_type.current(0)
         self.c_frac_type.grid(sticky=tk.W, row=1, column=1)
 
         # select colormap
-        self.l_cmap = tk.Label(self.control_frame, text='color map:')
-        self.l_cmap.grid(sticky=tk.W, row=2, column=0)
-        self.c_cmap = ttk.Combobox(self.control_frame, values=self.cmaps, state='readonly')
+        self.l_cmap = tk.Label(self.options_frame, text='color map:')
+        self.l_cmap.grid(sticky=tk.E, row=2, column=0)
+        self.c_cmap = ttk.Combobox(self.options_frame, values=self.cmaps, state='readonly')
         self.c_cmap.current(self.cmaps.index('seismic_r'))
         self.c_cmap.grid(sticky=tk.W, row=2, column=1)
         self.c_cmap.bind('<<ComboboxSelected>>', self.update_cmap)
 
         # select orbit trap
-        self.l_otrap = tk.Label(self.control_frame, text='orbit trap:')
-        self.l_otrap.grid(sticky=tk.W, row=3, column=0)
-        self.c_otrap = ttk.Combobox(self.control_frame, values=['magnitude'], state='readonly')
+        self.l_otrap = tk.Label(self.options_frame, text='orbit trap:')
+        self.l_otrap.grid(sticky=tk.E, row=3, column=0)
+        self.c_otrap = ttk.Combobox(self.options_frame, values=['magnitude'], state='readonly')
         self.c_otrap.current(0)
         self.c_otrap.grid(sticky=tk.W, row=3, column=1)
 
         # zoom level
-        self.l_zoom = tk.Label(self.control_frame, text='zoom:')
-        self.l_zoom.grid(sticky=tk.W, row=4, column=0)
+        self.l_zoom = tk.Label(self.options_frame, text='zoom:')
+        self.l_zoom.grid(sticky=tk.E, row=4, column=0)
         self.zoom_var = tk.StringVar()
         self.zoom_var.set('1')
-        self.s_zoom = tk.Spinbox(self.control_frame, from_=1, to=1e9, textvariable=self.zoom_var, command=self.update_zoom)
+        self.s_zoom = tk.Spinbox(self.options_frame, from_=1, to=1e9, textvariable=self.zoom_var, width=20, command=self.update_zoom)
         self.s_zoom.grid(sticky=tk.W, row=4, column=1)
 
         # navigation buttons
-        self.b_up = tk.Button(self.control_frame, text='↑', command=self.update_up)
-        self.b_up.grid(row=5, column=5)
-        self.b_down = tk.Button(self.control_frame, text='↓', command=self.update_down)
-        self.b_down.grid(row=7, column=5)
-        self.b_left = tk.Button(self.control_frame, text='←', command=self.update_left)
-        self.b_left.grid(row=6, column=4)
-        self.b_right = tk.Button(self.control_frame, text='→', command=self.update_right)
-        self.b_right.grid(row=6, column=6)
+        self.control_frame = tk.Frame(self.root)
+        self.control_frame.pack(side=tk.LEFT, padx=20)
+        w, h = 2, 1
+        self.b_up = tk.Button(self.control_frame, text='↑', command=self.update_up, width=w, height=h)
+        self.b_up.grid(row=2, column=5)
+        self.b_down = tk.Button(self.control_frame, text='↓', command=self.update_down, width=w, height=h)
+        self.b_down.grid(row=4, column=5)
+        self.b_left = tk.Button(self.control_frame, text='←', command=self.update_left, width=w, height=h)
+        self.b_left.grid(row=3, column=4)
+        self.b_right = tk.Button(self.control_frame, text='→', command=self.update_right, width=w, height=h)
+        self.b_right.grid(row=3, column=6)
 
         # save button
-        self.b_save = tk.Button(self.control_frame, text='Save image', command=self.save_img)
+        self.b_save = tk.Button(self.options_frame, text='Save image', command=self.save_img, width=10)
         self.b_save.grid(row=8, column=0)
 
         # load position from image
-        self.b_load = tk.Button(self.control_frame, text='Load', command=self.load_img)
+        self.b_load = tk.Button(self.options_frame, text='Load', command=self.load_img, width=10)
         self.b_load.grid(row=8, column=1)
 
         # initialize image
