@@ -86,7 +86,7 @@ class FractalExplorer(object):
         # initialize image
         self.fractal_type = self.c_frac_type.get()
         self.cmap = self.c_cmap.get()
-        self.zoom = float(self.s_zoom.get())
+        self.zoom = int(self.s_zoom.get())
         self.update_iters()
         self.centerX = -0.7
         self.centerY = 0
@@ -117,13 +117,13 @@ class FractalExplorer(object):
 
     def update_zoom(self):
         # update zoom level
-        self.zoom = float(self.s_zoom.get())
+        self.zoom = int(self.s_zoom.get())
         self.update_iters()
         self.update_image()
 
     def update_iters(self):
         self.z_factor = (0.8 ** (self.zoom - 1))
-        self.iters = int(2 / self.z_factor)
+        self.iters = int(20 / self.z_factor)
 
     def update_left(self):
         # update when left button pressed
@@ -146,7 +146,7 @@ class FractalExplorer(object):
         img_name = '%s_%s_%s_%s_%s.png' % (self.c_frac_type.get(),
                                            str(self.centerX).replace('.', 'pt'),
                                            str(self.centerY).replace('.', 'pt'),
-                                           str(self.zoom).replace('.', 'pt'),
+                                           str(self.zoom),
                                            self.cmap)
         img_path = os.path.join(self.out_dir, img_name)
 
@@ -174,7 +174,7 @@ class FractalExplorer(object):
         self.fractal_type = vals[0]
         self.centerX = float(vals[1])
         self.centerY = float(vals[2])
-        self.zoom = float(vals[3])
+        self.zoom = int(vals[3])
         self.cmap = vals[4]
         if len(vals) > 5:
             self.cmap = self.cmap + '_r'
