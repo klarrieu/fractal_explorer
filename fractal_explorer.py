@@ -150,10 +150,13 @@ class FractalExplorer(object):
                                            self.cmap)
         img_path = os.path.join(self.out_dir, img_name)
 
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
         plt.imshow(self.gimage, cmap=self.cmap)
         plt.axis('off')
+        extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
         plt.savefig(img_path,
-                    bbox_inches='tight',
+                    bbox_inches=extent,
                     pad_inches=0,
                     transparent=True,
                     dpi=600)
