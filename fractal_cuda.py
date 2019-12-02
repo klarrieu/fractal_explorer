@@ -6,19 +6,27 @@ import numpy as np
 image = None
 
 
-def mandel(x, y, max_iters):
+def mandel(x, y, max_iters, trap='iterations'):
     """
     Determine if x + iy is in Mandelbrot set
     """
     c = x + 1j * y
     z = 0.0j
-    for i in range(max_iters):
-        z = z*z + c
-        # check divergence criteria
-        if (z.real * z.real + z.imag * z.imag) >= 4:
-            return i
-    # if didn't diverge
-    return max_iters
+    if trap == 'iterations':
+        for i in range(max_iters):
+            z = z*z + c
+            # check divergence criteria
+            if (z.real * z.real + z.imag * z.imag) >= 4:
+                return i
+        # if didn't diverge
+        return max_iters
+
+    if trap == 'magnitude':
+        for i in range(max_iters):
+            z = z*z + c
+            if (z.real * z.real + z.imag * z.imag) >= 4:
+                return (z.real * z.real + z.imag * z.imag) ** 0.5
+        return (z.real * z.real + z.imag * z.imag) ** 0.5
 
 
 # compile mandel to run on GPU
@@ -42,7 +50,7 @@ def mandel_kernel(min_x, max_x, min_y, max_y, image, iters):
         real = min_x + x * pixel_size_x
         for y in range(startY, height, gridY):
             imag = min_y + y * pixel_size_y
-            image[y, x] = mandel_gpu(real, imag, iters)
+            image[y, x] = mandel_gpu(real, imag, iters, 'iterations')
 
 
 def generate_img(centerX=-0.7, centerY=0, zoom=1, res=1080, iters=20, aspect=3 / 2):

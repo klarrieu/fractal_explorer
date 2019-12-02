@@ -177,7 +177,7 @@ class FractalExplorer(object):
         self.zoom = int(vals[3])
         self.cmap = vals[4]
         if len(vals) > 5:
-            self.cmap = self.cmap + '_r'
+            self.cmap = '_'.join([self.cmap] + vals[5:])
 
         self.c_frac_type.set(self.fractal_type)
         self.zoom_var.set(self.zoom)
