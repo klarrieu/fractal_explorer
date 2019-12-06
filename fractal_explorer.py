@@ -168,6 +168,9 @@ class FractalExplorer(object):
                             initialdir=self.out_dir,
                             title='Choose a previously saved image:',
                             filetypes=[['PNG', '.png']])
+        if f == '':
+            return
+        
         name = os.path.basename(f)
         vals = name.replace('pt', '.').replace('.png', '').split('_')
 
