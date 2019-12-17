@@ -1,4 +1,5 @@
 import os
+import shutil
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.filedialog import askopenfilename
@@ -6,6 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import fractal_cuda as fcuda
+try:
+    import cv2
+except:
+    print("OpenCV not found; save video feature not enabled.")
 
 
 class FractalExplorer(object):
@@ -59,7 +64,8 @@ class FractalExplorer(object):
         self.l_zoom.grid(sticky=tk.E, row=4, column=0)
         self.zoom_var = tk.StringVar()
         self.zoom_var.set('1')
-        self.s_zoom = tk.Spinbox(self.options_frame, from_=1, to=1e9, textvariable=self.zoom_var, width=20, command=self.update_zoom)
+        self.s_zoom = tk.Spinbox(self.options_frame, from_=1, to=1e9, textvariable=self.zoom_var, width=20,
+                                 command=self.update_zoom)
         self.s_zoom.grid(sticky=tk.W, row=4, column=1)
 
         # navigation buttons
@@ -83,6 +89,10 @@ class FractalExplorer(object):
         self.b_load = tk.Button(self.options_frame, text='Load', command=self.load_img, width=10)
         self.b_load.grid(row=8, column=1, pady=10)
 
+        # save video button
+        self.b_save_vid = tk.Button(self.options_frame, text='Save video', command=self.save_video, width=10)
+        self.b_save_vid.grid(row=9, column=0, pady=10)
+
         # initialize image
         self.fractal_type = self.c_frac_type.get()
         self.cmap = self.c_cmap.get()
@@ -103,7 +113,8 @@ class FractalExplorer(object):
 
     def update_image(self):
         # updates image when navigation changes
-        self.gimage = fcuda.generate_img(centerX=self.centerX, centerY=self.centerY, zoom=self.zoom, iters=20*self.zoom)
+        self.gimage = fcuda.generate_img(centerX=self.centerX, centerY=self.centerY, zoom=self.zoom,
+                                         iters=20 * self.zoom)
         self.fig1.cla()
         self.img = self.fig1.imshow(self.gimage, cmap=self.cmap)
         self.fig1.axis('off')
@@ -117,7 +128,7 @@ class FractalExplorer(object):
 
     def update_zoom(self):
         # update zoom level
-        self.zoom = int(self.s_zoom.get())
+        self.zoom = float(self.s_zoom.get())
         self.update_iters()
         self.update_image()
 
@@ -142,13 +153,16 @@ class FractalExplorer(object):
         self.centerY += 0.1 * self.z_factor
         self.update_image()
 
-    def save_img(self):
+    def save_img(self, *args):
         img_name = '%s_%s_%s_%s_%s.png' % (self.c_frac_type.get(),
                                            str(self.centerX).replace('.', 'pt'),
                                            str(self.centerY).replace('.', 'pt'),
                                            str(self.zoom),
                                            self.cmap)
         img_path = os.path.join(self.out_dir, img_name)
+
+        if len(args) > 0:
+            img_path = os.path.join(args[0], img_name)
 
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
@@ -161,7 +175,11 @@ class FractalExplorer(object):
                     transparent=True,
                     dpi=600)
         plt.cla()
+        if len(args) > 0:
+            plt.close(fig)
+
         print('Saved image: %s' % img_path)
+        return img_path
 
     def load_img(self):
         f = askopenfilename(parent=self.root,
@@ -170,7 +188,7 @@ class FractalExplorer(object):
                             filetypes=[['PNG', '.png']])
         if f == '':
             return
-        
+
         name = os.path.basename(f)
         vals = name.replace('pt', '.').replace('.png', '').split('_')
 
@@ -187,6 +205,49 @@ class FractalExplorer(object):
         self.c_cmap.current(self.cmaps.index(self.cmap))
 
         self.update_image()
+
+    def save_video(self):
+        print('Creating video frames...')
+        max_zoom = self.zoom
+
+        # create folder for video frames
+        vid_name = 'VIDEO_%s_%s_%s_%s_%s' % (self.c_frac_type.get(),
+                                             str(self.centerX).replace('.', 'pt'),
+                                             str(self.centerY).replace('.', 'pt'),
+                                             str(max_zoom),
+                                             self.cmap)
+
+        frame_dir = os.path.join(self.out_dir, vid_name)
+        os.mkdir(frame_dir)
+        try:
+            # populate with individual frames
+            img_array = []
+            zoom = 1
+            while zoom <= max_zoom:
+                self.zoom_var.set(zoom)
+                self.update_zoom()
+                img_path = self.save_img(frame_dir)
+                img = cv2.imread(img_path)
+                height, width, layers = img.shape
+                size = (width, height)
+                img_array.append(img)
+                zoom += 0.25
+
+            # save video
+            out_path = os.path.join(self.out_dir, '%s.avi' % vid_name)
+            out = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*'DIVX'), 20, size)
+
+            for i in range(len(img_array)):
+                out.write(img_array[i])
+            out.release()
+        except Exception as e:
+            print('Saving video failed.')
+            print(e)
+        # delete frames
+        shutil.rmtree(frame_dir)
+
+        # show/open video location
+        print('Saved video: %s' % out_path)
 
 
 if __name__ == '__main__':
