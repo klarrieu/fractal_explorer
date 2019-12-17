@@ -11,6 +11,7 @@ try:
     import cv2
 except:
     print("OpenCV not found; save video feature not enabled.")
+    pass
 
 
 class FractalExplorer(object):
@@ -157,7 +158,7 @@ class FractalExplorer(object):
         img_name = '%s_%s_%s_%s_%s.png' % (self.c_frac_type.get(),
                                            str(self.centerX).replace('.', 'pt'),
                                            str(self.centerY).replace('.', 'pt'),
-                                           str(self.zoom),
+                                           str(self.zoom).replace('.', 'pt'),
                                            self.cmap)
         img_path = os.path.join(self.out_dir, img_name)
 
@@ -206,7 +207,7 @@ class FractalExplorer(object):
 
         self.update_image()
 
-    def save_video(self):
+    def save_video(self, fr=30, step=0.125, end_t=3):
         print('Creating video frames...')
         max_zoom = self.zoom
 
@@ -231,11 +232,13 @@ class FractalExplorer(object):
                 height, width, layers = img.shape
                 size = (width, height)
                 img_array.append(img)
-                zoom += 0.25
+                if zoom == max_zoom:
+                    img_array.extend([img] * (end_t * fr))
+                zoom += step
 
             # save video
             out_path = os.path.join(self.out_dir, '%s.avi' % vid_name)
-            out = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*'DIVX'), 20, size)
+            out = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*'DIVX'), fr, size)
 
             for i in range(len(img_array)):
                 out.write(img_array[i])
