@@ -6,6 +6,7 @@ from tkinter.filedialog import askopenfilename
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from matplotlib.colors import LightSource
 import fractal_cuda as fcuda
 try:
     import cv2
@@ -56,7 +57,7 @@ class FractalExplorer(object):
         # select orbit trap
         self.l_otrap = tk.Label(self.options_frame, text='orbit trap:')
         self.l_otrap.grid(sticky=tk.E, row=3, column=0)
-        self.c_otrap = ttk.Combobox(self.options_frame, values=['magnitude'], state='readonly')
+        self.c_otrap = ttk.Combobox(self.options_frame, values=['iterations'], state='readonly')
         self.c_otrap.current(0)
         self.c_otrap.grid(sticky=tk.W, row=3, column=1)
 
@@ -117,14 +118,18 @@ class FractalExplorer(object):
         self.gimage = fcuda.generate_img(centerX=self.centerX, centerY=self.centerY, zoom=self.zoom,
                                          iters=20 * self.zoom)
         self.fig1.cla()
-        self.img = self.fig1.imshow(self.gimage, cmap=self.cmap)
+        # self.img = self.fig1.imshow(self.gimage, cmap=self.cmap)
+        self.ls = LightSource(azdeg=315, altdeg=45)
+        self.shade = self.ls.shade(self.gimage, cmap=plt.get_cmap(self.cmap), blend_mode='overlay')
+        self.img = self.fig1.imshow(self.shade)
         self.fig1.axis('off')
         self.canvas.draw()
 
     def update_cmap(self, event):
         # update colormap without recomputing image
         self.cmap = self.c_cmap.get()
-        self.img.set_cmap(self.cmap)
+        self.shade = self.ls.shade(self.gimage, cmap=plt.get_cmap(self.cmap), blend_mode='smooth')
+        self.img = self.fig1.imshow(self.shade)
         self.canvas.draw()
 
     def update_zoom(self):
@@ -196,7 +201,7 @@ class FractalExplorer(object):
         self.fractal_type = vals[0]
         self.centerX = float(vals[1])
         self.centerY = float(vals[2])
-        self.zoom = int(vals[3])
+        self.zoom = float(vals[3])
         self.cmap = vals[4]
         if len(vals) > 5:
             self.cmap = '_'.join([self.cmap] + vals[5:])

@@ -75,7 +75,12 @@ def generate_img(centerX=-0.7, centerY=0, zoom=1, res=1080, iters=20, aspect=3 /
     dy = 1 / 2 * 2 * z_factor
 
     # compute on GPU
-    mandel_kernel[griddim, blockdim](centerX - dx, centerX + dx, centerY - dy, centerY + dy, d_image, iters)
+    mandel_kernel[griddim, blockdim](centerX - dx,
+                                     centerX + dx,
+                                     centerY - dy,
+                                     centerY + dy,
+                                     d_image,
+                                     iters)
     # return to CPU
     d_image.to_host()
 
