@@ -57,7 +57,7 @@ class FractalExplorer(object):
         # select orbit trap
         self.l_otrap = tk.Label(self.options_frame, text='orbit trap:')
         self.l_otrap.grid(sticky=tk.E, row=3, column=0)
-        self.c_otrap = ttk.Combobox(self.options_frame, values=['iterations'], state='readonly')
+        self.c_otrap = ttk.Combobox(self.options_frame, values=['iterations', 'iters-smooth'], state='readonly')
         self.c_otrap.current(0)
         self.c_otrap.grid(sticky=tk.W, row=3, column=1)
 
@@ -95,10 +95,18 @@ class FractalExplorer(object):
         self.b_save_vid = tk.Button(self.options_frame, text='Save video', command=self.save_video, width=10)
         self.b_save_vid.grid(row=9, column=0, pady=10)
 
+        # hillshade checkbox
+        self.hillshade = tk.BooleanVar()
+        self.l_shade = tk.Label(self.options_frame, text='Hillshade: ')
+        self.l_shade.grid(row=1, column=2)
+        self.c_shade = tk.Checkbutton(self.options_frame, variable=self.hillshade, command=self.update_image)
+        self.c_shade.grid(row=1, column=3)
+
         # initialize image
         self.fractal_type = self.c_frac_type.get()
         self.cmap = self.c_cmap.get()
         self.zoom = int(self.s_zoom.get())
+        self.trap = self.c_otrap.get()
         self.update_iters()
         self.centerX = -0.7
         self.centerY = 0
@@ -118,19 +126,21 @@ class FractalExplorer(object):
         self.gimage = fcuda.generate_img(centerX=self.centerX, centerY=self.centerY, zoom=self.zoom,
                                          iters=20 * self.zoom)
         self.fig1.cla()
-        # self.img = self.fig1.imshow(self.gimage, cmap=self.cmap)
-        self.ls = LightSource(azdeg=315, altdeg=45)
-        self.shade = self.ls.shade(self.gimage, cmap=plt.get_cmap(self.cmap), blend_mode='overlay')
-        self.img = self.fig1.imshow(self.shade)
+        if self.hillshade.get():
+            self.ls = LightSource(azdeg=315, altdeg=45)
+            self.shade = self.ls.shade(self.gimage, cmap=plt.get_cmap(self.cmap), blend_mode='overlay')
+            self.img = self.fig1.imshow(self.shade)
+        else:
+            self.img = self.fig1.imshow(self.gimage, cmap=self.cmap)
         self.fig1.axis('off')
         self.canvas.draw()
 
     def update_cmap(self, event):
         # update colormap without recomputing image
         self.cmap = self.c_cmap.get()
-        self.shade = self.ls.shade(self.gimage, cmap=plt.get_cmap(self.cmap), blend_mode='smooth')
-        self.img = self.fig1.imshow(self.shade)
-        self.canvas.draw()
+        # self.img = self.fig1.imshow(self.gimage, cmap=self.cmap)
+        # self.canvas.draw()
+        self.update_image()
 
     def update_zoom(self):
         # update zoom level
@@ -172,7 +182,12 @@ class FractalExplorer(object):
 
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
-        plt.imshow(self.gimage, cmap=self.cmap)
+        if self.hillshade.get():
+            self.ls = LightSource(azdeg=315, altdeg=45)
+            self.shade = self.ls.shade(self.gimage, cmap=plt.get_cmap(self.cmap), blend_mode='overlay')
+            plt.imshow(self.shade)
+        else:
+            plt.imshow(self.gimage, cmap=self.cmap)
         plt.axis('off')
         extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
         plt.savefig(img_path,

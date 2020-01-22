@@ -1,10 +1,9 @@
 from numba import cuda
-from numba import *
-from matplotlib.pyplot import imshow, show
+from matplotlib.pyplot import show
 import numpy as np
+import math
 
 image = None
-
 
 def mandel(x, y, max_iters, trap='iterations'):
     """
@@ -19,6 +18,20 @@ def mandel(x, y, max_iters, trap='iterations'):
             if (z.real * z.real + z.imag * z.imag) >= 4:
                 return i
         # if didn't diverge
+        return max_iters
+
+    if trap == 'iters-smooth':
+        for i in range(max_iters):
+            z = z*z + c
+            if (z.real * z.real + z.imag * z.imag) >= 4:
+                return i + (4 - abs(z)) / 2
+        return max_iters
+
+    if trap == 'smooth':
+        for i in range(max_iters):
+            z = z * z + c
+            if (z.real * z.real + z.imag * z.imag) >= 4:
+                return i + 1 + 1 / math.log(2.0) * math.log(math.log(2.0)/math.log(abs(z)))
         return max_iters
 
     if trap == 'magnitude':
