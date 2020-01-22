@@ -5,6 +5,7 @@ import math
 
 image = None
 
+
 def mandel(x, y, max_iters, trap='iterations'):
     """
     Determine if x + iy is in Mandelbrot set

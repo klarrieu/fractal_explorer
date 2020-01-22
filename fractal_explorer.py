@@ -45,21 +45,23 @@ class FractalExplorer(object):
         self.c_frac_type = ttk.Combobox(self.options_frame, values=self.frac_types, state='readonly')
         self.c_frac_type.current(0)
         self.c_frac_type.grid(sticky=tk.W, row=1, column=1)
-
-        # select colormap
-        self.l_cmap = tk.Label(self.options_frame, text='color map:')
-        self.l_cmap.grid(sticky=tk.E, row=2, column=0)
-        self.c_cmap = ttk.Combobox(self.options_frame, values=self.cmaps, state='readonly')
-        self.c_cmap.current(self.cmaps.index('cubehelix'))
-        self.c_cmap.grid(sticky=tk.W, row=2, column=1)
-        self.c_cmap.bind('<<ComboboxSelected>>', self.update_cmap)
+        self.c_frac_type.bind('<<ComboboxSelected>>', self.update_fractal_type)
 
         # select orbit trap
         self.l_otrap = tk.Label(self.options_frame, text='orbit trap:')
-        self.l_otrap.grid(sticky=tk.E, row=3, column=0)
-        self.c_otrap = ttk.Combobox(self.options_frame, values=['iterations', 'iters-smooth'], state='readonly')
+        self.l_otrap.grid(sticky=tk.E, row=2, column=0)
+        self.c_otrap = ttk.Combobox(self.options_frame, values=['iterations'], state='readonly')
         self.c_otrap.current(0)
-        self.c_otrap.grid(sticky=tk.W, row=3, column=1)
+        self.c_otrap.grid(sticky=tk.W, row=2, column=1)
+        self.c_otrap.bind('<<ComboboxSelected>>', self.update_orbit_trap)
+
+        # select colormap
+        self.l_cmap = tk.Label(self.options_frame, text='color map:')
+        self.l_cmap.grid(sticky=tk.E, row=3, column=0)
+        self.c_cmap = ttk.Combobox(self.options_frame, values=self.cmaps, state='readonly')
+        self.c_cmap.current(self.cmaps.index('terrain'))
+        self.c_cmap.grid(sticky=tk.W, row=3, column=1)
+        self.c_cmap.bind('<<ComboboxSelected>>', self.update_cmap)
 
         # zoom level
         self.l_zoom = tk.Label(self.options_frame, text='zoom:')
@@ -88,12 +90,12 @@ class FractalExplorer(object):
         self.b_save.grid(row=8, column=0, pady=10)
 
         # load position from image
-        self.b_load = tk.Button(self.options_frame, text='Load', command=self.load_img, width=10)
+        self.b_load = tk.Button(self.options_frame, text='Load image', command=self.load_img, width=10)
         self.b_load.grid(row=8, column=1, pady=10)
 
         # save video button
         self.b_save_vid = tk.Button(self.options_frame, text='Save video', command=self.save_video, width=10)
-        self.b_save_vid.grid(row=9, column=0, pady=10)
+        self.b_save_vid.grid(row=8, column=2, pady=10)
 
         # hillshade checkbox
         self.hillshade = tk.BooleanVar()
@@ -104,6 +106,7 @@ class FractalExplorer(object):
 
         # initialize image
         self.fractal_type = self.c_frac_type.get()
+        self.otrap = self.c_otrap.get()
         self.cmap = self.c_cmap.get()
         self.zoom = int(self.s_zoom.get())
         self.trap = self.c_otrap.get()
@@ -115,10 +118,10 @@ class FractalExplorer(object):
         # launch GUI
         self.root.mainloop()
 
-    def update_fractal_type(self):
+    def update_fractal_type(self, event):
         print('under construction')
 
-    def update_orbit_trap(self):
+    def update_orbit_trap(self, event):
         print('under construction')
 
     def update_image(self):
@@ -138,9 +141,13 @@ class FractalExplorer(object):
     def update_cmap(self, event):
         # update colormap without recomputing image
         self.cmap = self.c_cmap.get()
-        # self.img = self.fig1.imshow(self.gimage, cmap=self.cmap)
-        # self.canvas.draw()
-        self.update_image()
+        if self.hillshade.get():
+            self.ls = LightSource(azdeg=315, altdeg=45)
+            self.shade = self.ls.shade(self.gimage, cmap=plt.get_cmap(self.cmap), blend_mode='overlay')
+            self.img = self.fig1.imshow(self.shade)
+        else:
+            self.img = self.fig1.imshow(self.gimage, cmap=self.cmap)
+        self.canvas.draw()
 
     def update_zoom(self):
         # update zoom level
@@ -221,6 +228,7 @@ class FractalExplorer(object):
         if len(vals) > 5:
             self.cmap = '_'.join([self.cmap] + vals[5:])
 
+        # update parameters
         self.c_frac_type.set(self.fractal_type)
         self.zoom_var.set(self.zoom)
         self.c_cmap.current(self.cmaps.index(self.cmap))
